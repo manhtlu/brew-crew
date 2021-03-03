@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mtlu_brew_crew/services/auth.dart';
+import 'package:mtlu_brew_crew/shared/constants.dart';
+import 'package:mtlu_brew_crew/shared/loading.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
@@ -13,6 +15,8 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
+
+  bool loading = false;
   String error = '';
 
   // text field state
@@ -21,7 +25,7 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? Loading() : Scaffold(
       backgroundColor: Colors.brown[100],
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
@@ -47,6 +51,7 @@ class _SignInState extends State<SignIn> {
               children: <Widget>[
                 SizedBox(height: 20),
                 TextFormField(
+                  decoration: textInputDecoration.copyWith(hintText: 'Email'),
                   onChanged: (value) {
                     setState(() => email = value);
                   },
@@ -56,6 +61,7 @@ class _SignInState extends State<SignIn> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  decoration: textInputDecoration.copyWith(hintText: 'Password'),
                   obscureText: true,
                   onChanged: (value) {
                     setState(() => password = value);
@@ -75,10 +81,16 @@ class _SignInState extends State<SignIn> {
                       setState(() => error = '');
 
                       if (_formKey.currentState.validate()) {
+                        setState(() {
+                          loading = true;
+                        });
                         dynamic result = await _authService
                             .signInWithEmailAndPassword(email, password);
                         if (result == null) {
-                          setState(() => error = 'Please supply a valid email');
+                          setState(() {
+                            loading = false;
+                            error = 'Please supply a valid email';
+                          });
                         }
                       }
                     },

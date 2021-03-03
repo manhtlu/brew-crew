@@ -1,5 +1,6 @@
 import 'package:mtlu_brew_crew/models/authuser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mtlu_brew_crew/services/database.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -45,6 +46,8 @@ class AuthService {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email.trim(), password: password.trim());
 
+      await DatabaseService(uid: result.user.uid).updateUserData('0', 'New member', 100);
+
       return _userFromFirebase(result.user);
     } catch (e) {
       print(e.toString());
@@ -53,7 +56,7 @@ class AuthService {
   }
 
 
-  // sign out`
+  // sign out
   Future<dynamic> signOut() async {
     try {
       return await _auth.signOut();
